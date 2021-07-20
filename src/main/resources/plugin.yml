@@ -1,0 +1,10 @@
+name: Lobby
+version: ${project.version}
+main: br.pryz.lobby.main.LobbyMain
+api-version: 1.17
+authors: [ PryzDev ]
+description: Plugin de lobby
+commands:
+  sair:
+    description: Lhe tira do modo pvp
+    aliases: [quit]
