@@ -1,11 +1,10 @@
 package br.pryz.lobby.events;
-import java.util.ArrayList;
-import java.util.List;
 
 import br.pryz.lobby.main.LobbyMain;
 import br.pryz.lobby.utils.ItemBuilder;
 import br.pryz.lobby.utils.Lobby;
 import br.pryz.lobby.utils.PvP;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -15,13 +14,14 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.List;
 
 public class ItemEvent
         implements Listener {
+    private static List<Player> invanish = Lobby.getVanishedPlayers();
     private JavaPlugin pl = LobbyMain.getInstance();
-    public static List<Player> invanish = new ArrayList<Player>();
 
     @EventHandler
     public void onLobbyInteract(PlayerInteractEvent e) {
@@ -32,21 +32,19 @@ public class ItemEvent
             return;
         }
         Player p = e.getPlayer();
-        if (e.getAction() != Action.RIGHT_CLICK_AIR) {
-            if (e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        }
-        if (!e.getItem().getItemMeta().getDisplayName().equals("§aLobbys")) return;
+        if (e.getAction() != Action.RIGHT_CLICK_BLOCK && e.getAction() != Action.RIGHT_CLICK_AIR) return;
+        if (!e.getItem().getItemMeta().getDisplayName().equals(color("&aLobbys"))) return;
         Lobby.openLobbys(p);
     }
 
     @EventHandler
     public void onLobbyClick(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player)) return;
-        if (!e.getView().getTitle().equals("§aLobbys")) return;
-        Player p = (Player)e.getWhoClicked();
+        if (!e.getView().getTitle().equals(color("&aLobbys"))) return;
+        Player p = (Player) e.getWhoClicked();
         ItemStack item = e.getCurrentItem();
         Lobby.teleportLobby(p, item.getItemMeta().getDisplayName());
-        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 50.0f, 50.0f);
+        p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 50.0f, 50.0f);
     }
 
     @EventHandler
@@ -58,26 +56,25 @@ public class ItemEvent
             return;
         }
         Player p = e.getPlayer();
-        if (e.getAction() != Action.RIGHT_CLICK_AIR) {
-            if (e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        }
-        if (!e.getItem().getItemMeta().getDisplayName().equals("§aServidores")) return;
+        if (e.getAction() != Action.RIGHT_CLICK_BLOCK && e.getAction() != Action.RIGHT_CLICK_AIR) return;
+
+        if (!e.getItem().getItemMeta().getDisplayName().equals(color("&aServidores"))) return;
         Lobby.openServers(p);
     }
 
     @EventHandler
     public void onServerClick(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player)) return;
-        if (!e.getView().getTitle().equals("§aServidores")) return;
-        Player p = (Player)e.getWhoClicked();
+        if (!e.getView().getTitle().equals(color("&aServidores"))) return;
+        Player p = (Player) e.getWhoClicked();
         try {
-            Lobby.teleportServer(p, 1);
-            p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 50.0f, 50.0f);
+            Lobby.teleportServer(p, e.getCurrentItem().getItemMeta().getDisplayName());
+            p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 50.0f, 50.0f);
             return;
-        }
-        catch (Exception ex) {
-            p.sendMessage("§cAlgo está errado.");
+        } catch (Exception ex) {
+            p.sendMessage(Lobby.getServerPrefix() + color("&cHouve um erro na conexão, contate um membro da equipe."));
             p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 50.0f, 50.0f);
+            return;
         }
     }
 
@@ -86,33 +83,25 @@ public class ItemEvent
         if (e.getItem() == null) {
             return;
         }
-        if (e.getItem().getType() != Material.FIRE_CHARGE) {
-            if (e.getItem().getType() != Material.SLIME_BALL) return;
-        }
+        if (e.getItem().getType() != Material.FIRE_CHARGE && (e.getItem().getType() != Material.SLIME_BALL)) return;
+
         Player p = e.getPlayer();
-        if (e.getAction() != Action.RIGHT_CLICK_AIR) {
-            if (e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        }
-        if (!e.getItem().getItemMeta().getDisplayName().equals("§aVisibilidade")) return;
-        e.setCancelled(true);
+        if (e.getAction() != Action.RIGHT_CLICK_BLOCK && e.getAction() != Action.RIGHT_CLICK_AIR) return;
+        if (!e.getItem().getItemMeta().getDisplayName().equals(color("&aVisibilidade"))) return;
         if (!invanish.contains(p)) {
             invanish.add(p);
-            ItemStack fwt = ItemBuilder.newItem((String)"§aVisibilidade", (Material)Material.FIRE_CHARGE);
-            p.getWorld().getPlayers().stream().filter(p2 -> {
-                if (!p2.hasPermission("pry.lobby.staff")) return true;
-                return false;
-            }).forEach(player2 -> {
-                if (player2.equals(p)) {
-                    return;
-                }
-                p.hidePlayer((Plugin)this.pl, player2);
+            ItemStack fwt = ItemBuilder.newItem("&aVisibilidade", Material.FIRE_CHARGE);
+            p.getWorld().getPlayers().stream().filter(p2 -> !p2.hasPermission("pry.lobby.staff")).forEach(p3 -> {
+                if (p3.equals(p)) return;
+                p.hidePlayer(pl, p3);
             });
             p.getInventory().setItemInMainHand(fwt);
             return;
         }
         invanish.remove(p);
-        p.getWorld().getPlayers().forEach(player2 -> p.showPlayer((Plugin)this.pl, player2));
-        Lobby.giveItens((Player)p);
+        p.getWorld().getPlayers().forEach(p2 -> p.showPlayer(pl, p2));
+        Lobby.giveItens(p);
+        e.setCancelled(true);
     }
 
     @EventHandler
@@ -124,12 +113,18 @@ public class ItemEvent
             return;
         }
         Player p = e.getPlayer();
-        if (e.getAction() != Action.RIGHT_CLICK_AIR) {
-            if (e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        }
-        if (!e.getItem().getItemMeta().getDisplayName().equals("§aIr Batalhar")) return;
+        if (e.getAction() != Action.RIGHT_CLICK_BLOCK && e.getAction() != Action.RIGHT_CLICK_AIR) return;
+        if (!e.getItem().getItemMeta().getDisplayName().equals(color("&aIr Batalhar"))) return;
         e.setCancelled(true);
-        PvP.addPlayer((Player)p);
+        if (invanish.contains(p)) {
+            invanish.remove(p);
+            p.getWorld().getPlayers().forEach(p2 -> p.showPlayer(pl, p2));
+        }
+        PvP.addPlayer(p);
+    }
+
+    private String color(String txt) {
+        return ChatColor.translateAlternateColorCodes('&', txt);
     }
 }
 

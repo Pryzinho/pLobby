@@ -1,6 +1,7 @@
 package br.pryz.lobby.utils;
 
 
+import br.pryz.lobby.utils.PryConfig;
 import br.pryz.lobby.main.LobbyMain;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -11,22 +12,28 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Lobby {
+    private static JavaPlugin pl = LobbyMain.getInstance();
+    private static PryConfig locations = new PryConfig(pl, "locations.yml");
+    private static PryConfig config = new PryConfig(pl, "config.yml");
+    private static List<Player> invanish = new ArrayList<Player>();
+    private static int numberOfLobbys = config.getInt("NumberOfLobbys");
+
     public static boolean noExists() {
-        if (Bukkit.getWorld((String) "lobby1") == null) return true;
-        if (Bukkit.getWorld((String) "lobby2") == null) return true;
-        if (Bukkit.getWorld((String) "lobby3") == null) return true;
-        if (Bukkit.getWorld((String) "lobby4") == null) return true;
-        if (Bukkit.getWorld((String) "lobby5") == null) return true;
+        for (int i = 1; i < numberOfLobbys; i++){
+            if (Bukkit.getWorld("lobby" + i) == null)return true;
+        }
         return false;
     }
 
     public static void openLobbys(Player p) {
         Inventory inv = Bukkit.createInventory(null, 27, color("&aLobbys"));
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < numberOfLobbys; i++) {
             ArrayList<String> lore = new ArrayList<>();
             lore.add(color("&a") + Bukkit.getWorld("lobby" + i).getPlayers().size() + color("&a estão conectados a este lobby."));
             ItemStack item = ItemBuilder.newItem("&aLobby " + i, Material.EMERALD, lore);
@@ -78,9 +85,9 @@ public class Lobby {
         p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 50, 50);
     }
 
-    public static void teleportLobby(Player p, int lobby) {
-        p.sendMessage(color("&aConectando ao Lobby ") + lobby);
-        p.teleport(LobbyConfig.getLobbyLocation(lobby));
+    public static void teleportLobby(Player p, String lobby) {
+        p.sendMessage(color("&aConectando-se ao ") + lobby);
+        p.teleport(getLocationsYml().getLocation(lobby.toLowerCase()));
     }
 
     private static String color(String txt) {
@@ -88,12 +95,33 @@ public class Lobby {
     }
 
     public static void teleportServer(Player p, String server_name) {
-        LobbyMain.sendPluginMessage(p, "BungeeCord", "Connect", server_name);
+        LobbyMain.sendPluginMessage(p, "BungeeCord", "Connect", server_name.toLowerCase());
     }
 
-    public static void teleportServer(Player p, int server) {
-        String s = "Server" + Integer.toString(server);
-        LobbyMain.sendPluginMessage(p, "BungeeCord", "Connect", s);
+    public static int getNumberOfLobbys() {
+        return numberOfLobbys;
     }
+    public static List<Player> getVanishedPlayers(){
+        return invanish;
+    }
+
+    //YML Section
+    public static String getServerPrefix() {
+        if (getConfig().getString("ServerPrefix") != null){
+            return color(getConfig().getString("ServerPrefix"));
+        } else {
+            return color("&eSistema &f>");
+        }
+    }
+
+
+    public static PryConfig getConfig() {
+        return config;
+    }
+
+    public static PryConfig getLocationsYml() {
+        return locations;
+    }
+
 }
 
