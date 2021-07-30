@@ -3,6 +3,7 @@ package br.pryz.lobby.utils;
 
 import br.pryz.lobby.utils.PryConfig;
 import br.pryz.lobby.main.LobbyMain;
+import br.pryz.lobby.utils.profile.Profile;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -28,6 +29,7 @@ public class Lobby {
         for (int i = 1; i < numberOfLobbys; i++){
             if (Bukkit.getWorld("lobby" + i) == null)return true;
         }
+
         return false;
     }
 

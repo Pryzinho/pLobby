@@ -3,6 +3,9 @@ package br.pryz.lobby.events;
 import br.pryz.lobby.main.LobbyMain;
 import br.pryz.lobby.utils.Lobby;
 import br.pryz.lobby.utils.PvP;
+import br.pryz.lobby.utils.profile.Profile;
+import br.pryz.lobby.utils.profile.ProfileManager;
+import br.pryz.lobby.utils.profile.StatusType;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -80,6 +83,8 @@ public class PlayerEvent
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
+        Profile pf = LobbyMain.getProfileManager().initProfile(p);
+        pf.setStatus(StatusType.DISPONIVEL);
         PvP.getPlayers().forEach(p2 -> p2.hidePlayer(pl, p));
         p.setGameMode(GameMode.CREATIVE);
         if (!p.hasPermission("pry.lobby.vip")) {
@@ -101,6 +106,8 @@ public class PlayerEvent
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
+        Profile pf = LobbyMain.getProfileManager().initProfile(p);
+        pf.setStatus(StatusType.OFFLINE);
         p.getInventory().clear();
         e.setQuitMessage(null);
     }

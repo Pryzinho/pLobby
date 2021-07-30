@@ -4,6 +4,8 @@ import br.pryz.lobby.commands.Quit;
 import br.pryz.lobby.events.ItemEvent;
 import br.pryz.lobby.events.PlayerEvent;
 import br.pryz.lobby.utils.Lobby;
+import br.pryz.lobby.utils.easydatabase.EasyDatabaseException;
+import br.pryz.lobby.utils.profile.ProfileManager;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -16,8 +18,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 
 public class LobbyMain extends JavaPlugin {
+    private static ProfileManager pm = new ProfileManager();
     private final CommandSender console = Bukkit.getConsoleSender();
 
     public static boolean sendPluginMessage(Player player, String channel, String subchannel, String... data) {
@@ -49,6 +56,10 @@ public class LobbyMain extends JavaPlugin {
         return getPlugin(LobbyMain.class);
     }
 
+    public static ProfileManager getProfileManager() {
+        return pm;
+    }
+
     @Override
     public void onLoad() {
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
@@ -57,6 +68,20 @@ public class LobbyMain extends JavaPlugin {
     }
 
     public void onEnable() {
+
+        //Loading Database...
+        Connection con = null;
+        try {
+            con = pm.getSQL().getConnection();
+            Statement stmt = con.createStatement();
+            stmt.execute("CREATE TABLE IF NOT EXISTS `plobby`.`profiles` (`name` varchar(16) NOT NULL, `email` varchar(256) DEFAULT NULL,`discord` varchar(2000) DEFAULT NULL,`firstTimeOnline` bigint(20) NOT NULL,`lastTimeOnline` bigint(20) NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+            stmt.close();
+            con.close();
+        } catch (EasyDatabaseException | SQLException e) {
+            e.printStackTrace();
+        }
+        pm.loadProfiles();
+
         //Loading Events...
         getServer().getPluginManager().registerEvents(new PlayerEvent(), this);
         getServer().getPluginManager().registerEvents(new ItemEvent(), this);
