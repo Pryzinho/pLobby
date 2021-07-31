@@ -1,7 +1,6 @@
 package br.pryz.lobby.utils;
 
 
-import br.pryz.lobby.utils.PryConfig;
 import br.pryz.lobby.main.LobbyMain;
 import br.pryz.lobby.utils.profile.Profile;
 import org.bukkit.Bukkit;
@@ -15,22 +14,78 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class Lobby {
     private static JavaPlugin pl = LobbyMain.getInstance();
     private static PryConfig locations = new PryConfig(pl, "locations.yml");
     private static PryConfig config = new PryConfig(pl, "config.yml");
-    private static List<Player> invanish = new ArrayList<Player>();
     private static int numberOfLobbys = config.getInt("NumberOfLobbys");
+    private static List<Player> invanish = new ArrayList<Player>();
 
     public static boolean noExists() {
-        for (int i = 1; i < numberOfLobbys; i++){
-            if (Bukkit.getWorld("lobby" + i) == null)return true;
+        for (int i = 1; i < numberOfLobbys; i++) {
+            if (Bukkit.getWorld("lobby" + i) == null) return true;
         }
 
         return false;
+    }
+
+    /**
+     *
+     * @param p - Player
+     * @param t - Target
+     */
+    public static void openProfile(Player p, Player t) {
+        Profile pf = LobbyMain.getProfileManager().getProfile(t);
+        if (p == t) {
+            Inventory inv = Bukkit.createInventory(null, 9 * 5, color("&aMeu Perfil"));
+            DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
+            Date first = new Date(pf.getFirstTimeOnline()), last = new Date(pf.getLastTimeOnline());
+
+            String sfirst = color("&aConta criada em &f") + df.format(first),
+                    slast = color("&cUltimo login em &f") + df.format(last),
+                    discord = color("&aD&bi&cs&dc&eo&fr&ad&f: ") + pf.getDiscord(),
+            email = color("&6E-Mail&f:");
+            List<String> lore = Arrays.asList(color(pf.getStatus().name()), email, discord, sfirst, slast);
+            ItemStack item = ItemBuilder.newItem(p.getName(), Material.SKELETON_SKULL, lore);
+            inv.setItem(11, item);
+            p.openInventory(inv);
+            return;
+        } else {
+        if (p.hasPermission("pry.lobby.level.admin")){
+            Inventory inv = Bukkit.createInventory(null, 9 * 5, color("&aMeu Perfil"));
+            DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
+            Date first = new Date(pf.getFirstTimeOnline()), last = new Date(pf.getLastTimeOnline());
+
+            String sfirst = color("&aConta criada em &f") + df.format(first),
+                    slast = color("&cUltimo login em &f") + df.format(last),
+                    discord = color("&aD&bi&cs&dc&eo&fr&ad&f: ") + pf.getDiscord(),
+                    email = color("&6E-Mail&f:");
+            List<String> lore = Arrays.asList(color(pf.getStatus().name()), email, discord, sfirst, slast);
+            ItemStack item = ItemBuilder.newItem(p.getName(), Material.SKELETON_SKULL, lore);
+            inv.setItem(11, item);
+            p.openInventory(inv);
+            return;
+        }
+            Inventory inv = Bukkit.createInventory(null, 9 * 5, color("&aMeu Perfil"));
+            DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
+            Date first = new Date(pf.getFirstTimeOnline()), last = new Date(pf.getLastTimeOnline());
+
+            String sfirst = color("&aConta criada em &f") + df.format(first),
+                    slast = color("&cUltimo login em &f") + df.format(last),
+                    discord = color("&aD&bi&cs&dc&eo&fr&ad&f: ") + pf.getDiscord();
+            List<String> lore = Arrays.asList(color(pf.getStatus().name()), discord, sfirst, slast);
+            ItemStack item = ItemBuilder.newItem(p.getName(), Material.SKELETON_SKULL, lore);
+            inv.setItem(11, item);
+            p.openInventory(inv);
+            return;
+        }
+
     }
 
     public static void openLobbys(Player p) {
@@ -103,13 +158,14 @@ public class Lobby {
     public static int getNumberOfLobbys() {
         return numberOfLobbys;
     }
-    public static List<Player> getVanishedPlayers(){
+
+    public static List<Player> getVanishedPlayers() {
         return invanish;
     }
 
     //YML Section
     public static String getServerPrefix() {
-        if (getConfig().getString("ServerPrefix") != null){
+        if (getConfig().getString("ServerPrefix") != null) {
             return color(getConfig().getString("ServerPrefix"));
         } else {
             return color("&eSistema &f>");

@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -24,18 +25,36 @@ public class ItemEvent
     private JavaPlugin pl = LobbyMain.getInstance();
 
     @EventHandler
-    public void onLobbyInteract(PlayerInteractEvent e) {
-        if (e.getItem() == null) {
-            return;
-        }
-        if (e.getItem().getType() != Material.NETHER_STAR) {
-            return;
-        }
+    public void onInteract(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if (e.getAction() != Action.RIGHT_CLICK_BLOCK && e.getAction() != Action.RIGHT_CLICK_AIR) return;
-        if (!e.getItem().getItemMeta().getDisplayName().equals(color("&aLobbys"))) return;
-        Lobby.openLobbys(p);
+        if (e.getItem() == null) return;
+
+        if (e.getItem().getType() == Material.NETHER_STAR) {
+            if (e.getAction() != Action.RIGHT_CLICK_BLOCK && e.getAction() != Action.RIGHT_CLICK_AIR) return;
+            if (!e.getItem().getItemMeta().getDisplayName().equals(color("&aLobbys"))) return;
+            Lobby.openLobbys(p);
+            return;
+        }
+        if (e.getItem().getType() == Material.SKELETON_SKULL) {
+            if (e.getAction() != Action.RIGHT_CLICK_BLOCK && e.getAction() != Action.RIGHT_CLICK_AIR) return;
+            if (!e.getItem().getItemMeta().getDisplayName().equals(color("&aPerfil"))) return;
+            Lobby.openProfile(p, p);
+            return;
+        }
     }
+
+    @EventHandler
+    public void onInteractAtEntity(PlayerInteractAtEntityEvent e) {
+        Player p = e.getPlayer();
+        if (!(e.getRightClicked() instanceof Player)) return;
+        Player t = (Player) e.getRightClicked();
+        if (p.getEquipment().getItemInMainHand().getType() == Material.SKELETON_SKULL) {
+            if (!p.getEquipment().getItemInMainHand().getItemMeta().getDisplayName().equals(color("&aPerfil"))) return;
+            Lobby.openProfile(p, t);
+            return;
+        }
+    }
+
 
     @EventHandler
     public void onLobbyClick(InventoryClickEvent e) {
