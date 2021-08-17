@@ -1,5 +1,6 @@
 package br.pryz.lobby.utils.profile;
 
+import br.pryz.lobby.main.LobbyMain;
 import br.pryz.lobby.utils.PryConfig;
 import br.pryz.lobby.utils.easydatabase.EasyMysql;
 import org.bukkit.Bukkit;
@@ -13,7 +14,7 @@ import java.util.UUID;
 
 public class ProfileManager {
     private JavaPlugin plugin;
-    private PryConfig ymlprofiles;
+    private PryConfig ymlprofiles = new PryConfig(LobbyMain.getInstance(), "profiles.yml");
     private EasyMysql mysqlprofiles;
     private Map<UUID, Profile> profiles = new HashMap<UUID, Profile>();
     private StorageType storageType;
@@ -27,20 +28,17 @@ public class ProfileManager {
 
                 break;
             case YML:
-                ymlprofiles = new PryConfig(plugin, "profiles.yml");
                 ymlprofiles.saveDefaultConfig();
                 break;
-            default:
 
-                break;
         }
     }
 
     public Profile createProfile(UUID uuid) {
         Player p = Bukkit.getPlayer(uuid);
         Profile profile = new Profile(uuid,
-                "Ugh, e-mail?",
-                "MEU, LINKA ISSO LOGO",
+                (p.getName() + "@MeuEmail..."),
+                "Linka, linka imediatamente O-O",
                 p.getFirstPlayed(),
                 System.currentTimeMillis());
         profiles.put(uuid, profile);
@@ -52,22 +50,36 @@ public class ProfileManager {
     }
 
     public void loadProfiles() {
-
+        switch (storageType) {
+            case SQL:
+                break;
+            case YML:
+                for (String key : ymlprofiles.getSection("")) {
+                    UUID uuid = UUID.fromString(key);
+                    Profile profile = new Profile(uuid,
+                            ymlprofiles.getString(uuid.toString() + ".email"),
+                            ymlprofiles.getString(uuid.toString() + ".discord"),
+                            ymlprofiles.getLong(uuid.toString() + ".firstPlayed"),
+                            ymlprofiles.getLong(uuid.toString() + ".lastPlayed")
+                    );
+                    profiles.put(uuid, profile);
+                }
+                break;
+        }
     }
 
     public void saveProfiles() {
         switch (storageType) {
             case SQL:
-
                 break;
             case YML:
-               for (UUID uuid: profiles.keySet()){
-                   ymlprofiles.set(String.valueOf(uuid) + ".email", profiles.get(uuid).getEmail());
-                   ymlprofiles.set(String.valueOf(uuid) + ".discord", profiles.get(uuid).getDiscord());
-                   ymlprofiles.set(String.valueOf(uuid) + ".firstPlayed", profiles.get(uuid).getFirstTimeOnline());
-                   ymlprofiles.set(String.valueOf(uuid) + ".lastPlayed", profiles.get(uuid).getLastTimeOnline());
-                   ymlprofiles.saveConfig();
-               }
+                for (UUID uuid : profiles.keySet()) {
+                    ymlprofiles.set(uuid.toString() + ".email", profiles.get(uuid).getEmail());
+                    ymlprofiles.set(uuid.toString() + ".discord", profiles.get(uuid).getDiscord());
+                    ymlprofiles.set(uuid.toString() + ".firstPlayed", profiles.get(uuid).getFirstTimeOnline());
+                    ymlprofiles.set(uuid.toString() + ".lastPlayed", profiles.get(uuid).getLastTimeOnline());
+                    ymlprofiles.saveConfig();
+                }
                 break;
         }
     }
@@ -76,8 +88,4 @@ public class ProfileManager {
         return profiles;
     }
 
-    public enum StorageType {
-        SQL,
-        YML
-    }
 }

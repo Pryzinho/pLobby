@@ -4,6 +4,7 @@ import br.pryz.lobby.main.LobbyMain;
 import br.pryz.lobby.utils.ItemBuilder;
 import br.pryz.lobby.utils.Lobby;
 import br.pryz.lobby.utils.PvP;
+import br.pryz.lobby.utils.profile.ProfileManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -22,7 +23,13 @@ import java.util.List;
 public class ItemEvent
         implements Listener {
     private static List<Player> invanish = Lobby.getVanishedPlayers();
-    private JavaPlugin pl = LobbyMain.getInstance();
+    private JavaPlugin pl;
+    private ProfileManager pm;
+
+    public ItemEvent(LobbyMain plugin){
+        pl = plugin;
+        pm = plugin.getProfileManager();
+    }
 
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
@@ -38,7 +45,7 @@ public class ItemEvent
         if (e.getItem().getType() == Material.SKELETON_SKULL) {
             if (e.getAction() != Action.RIGHT_CLICK_BLOCK && e.getAction() != Action.RIGHT_CLICK_AIR) return;
             if (!e.getItem().getItemMeta().getDisplayName().equals(color("&aPerfil"))) return;
-            Lobby.openProfile(p, p);
+            Lobby.openProfile(pm, p, p);
             return;
         }
     }
@@ -50,7 +57,7 @@ public class ItemEvent
         Player t = (Player) e.getRightClicked();
         if (p.getEquipment().getItemInMainHand().getType() == Material.SKELETON_SKULL) {
             if (!p.getEquipment().getItemInMainHand().getItemMeta().getDisplayName().equals(color("&aPerfil"))) return;
-            Lobby.openProfile(p, t);
+            Lobby.openProfile(pm, p, t);
             return;
         }
     }

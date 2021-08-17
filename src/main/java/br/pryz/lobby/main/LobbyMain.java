@@ -4,8 +4,8 @@ import br.pryz.lobby.commands.Quit;
 import br.pryz.lobby.events.ItemEvent;
 import br.pryz.lobby.events.PlayerEvent;
 import br.pryz.lobby.utils.Lobby;
-import br.pryz.lobby.utils.easydatabase.EasyDatabaseException;
 import br.pryz.lobby.utils.profile.ProfileManager;
+import br.pryz.lobby.utils.profile.StorageType;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -13,19 +13,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class LobbyMain extends JavaPlugin {
-    private static ProfileManager pm;
-    private final CommandSender console = Bukkit.getConsoleSender();
+    private ProfileManager pm = new ProfileManager(this, StorageType.YML);
+    private final Logger logger = Bukkit.getServer().getLogger();
 
     public static boolean sendPluginMessage(Player player, String channel, String subchannel, String... data) {
         try {
@@ -52,11 +50,11 @@ public class LobbyMain extends JavaPlugin {
         }
     }
 
-    public static LobbyMain getInstance() {
+    public static JavaPlugin getInstance() {
         return getPlugin(LobbyMain.class);
     }
 
-    public static ProfileManager getProfileManager() {
+    public ProfileManager getProfileManager() {
         return pm;
     }
 
@@ -68,9 +66,7 @@ public class LobbyMain extends JavaPlugin {
     }
 
     public void onEnable() {
-        //Loading Events...
-        getServer().getPluginManager().registerEvents(new PlayerEvent(), this);
-        getServer().getPluginManager().registerEvents(new ItemEvent(), this);
+        logger.log(Level.INFO, "&f[&dp&aLobby&f]&a Iniciando configuração...");
         //Loading worlds...
         if (Lobby.noExists()) {
             Lobby.getConfig().reloadConfig();
@@ -82,34 +78,33 @@ public class LobbyMain extends JavaPlugin {
                 Bukkit.createWorld(wc);
                 Lobby.getLocationsYml()
                         .setLocation("lobby" + i, Bukkit.getWorld("lobby" + 1).getSpawnLocation());
+                logger.log(Level.INFO, "&f[&dp&aLobby&f]&a Criando o mundo &e&lLobby" + i);
             }
         } else {
             for (int i = 1; i <= Lobby.getNumberOfLobbys(); i++) {
                 Lobby.getLocationsYml()
                         .setLocation("lobby" + i, Bukkit.getWorld("lobby" + i).getSpawnLocation());
+                logger.log(Level.INFO, "&f[&dp&aLobby&f]&a Carregando o mundo &e&lLobby" + i);
             }
         }
 
-        //Loading Managers...
-        pm = new ProfileManager(this, ProfileManager.StorageType.valueOf(Lobby.getConfig().getString("StorageType")));
+        //Loading Events...
+        getServer().getPluginManager().registerEvents(new PlayerEvent(this), this);
+        getServer().getPluginManager().registerEvents(new ItemEvent(this), this);
 
+        //Loading Managers...
+        pm.loadProfiles();
         //Loading commands...
         getCommand("sair").setExecutor(new Quit());
 
         //Finish Enable
-        console.sendMessage("--------------------");
-        console.sendMessage(color(" &ePryz Lobby"));
-        console.sendMessage(color(" &aPugin Habilitado "));
-        console.sendMessage("--------------------");
-        //new /* Unavailable Anonymous Inner Class!! */.run();
+        logger.log(Level.INFO, "&f[&dp&aLobby&f]&a Plugin iniciado com sucesso!");
     }
 
     public void onDisable() {
         HandlerList.unregisterAll();
-        console.sendMessage("--------------------");
-        console.sendMessage(color(" &ePryz Lobby "));
-        console.sendMessage(color(" &cPugin Desabilitado "));
-        console.sendMessage("--------------------");
+        pm.saveProfiles();
+        logger.log(Level.INFO, "&f[&dp&aLobby&f]&c Plugin desligado com sucesso!");
     }
 
     private String color(String txt) {

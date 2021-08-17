@@ -4,6 +4,7 @@ import br.pryz.lobby.main.LobbyMain;
 import br.pryz.lobby.utils.Lobby;
 import br.pryz.lobby.utils.PvP;
 import br.pryz.lobby.utils.profile.Profile;
+import br.pryz.lobby.utils.profile.ProfileManager;
 import br.pryz.lobby.utils.profile.StatusType;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -24,7 +25,12 @@ import java.util.Random;
 
 public class PlayerEvent
         implements Listener {
-    private final JavaPlugin pl = LobbyMain.getInstance();
+    private JavaPlugin pl;
+    private ProfileManager pm;
+    public PlayerEvent(LobbyMain plugin){
+        pl = plugin;
+        pm = plugin.getProfileManager();
+    }
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
@@ -80,9 +86,9 @@ public class PlayerEvent
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
 
-        Profile profile = LobbyMain.getProfileManager().getProfile(p.getUniqueId());
+        Profile profile = pm.getProfile(p.getUniqueId());
         if (profile == null){
-            profile = LobbyMain.getProfileManager().createProfile(p.getUniqueId());
+            profile = pm.createProfile(p.getUniqueId());
         }
         profile.setStatus(StatusType.DISPONIVEL);
 
@@ -107,7 +113,7 @@ public class PlayerEvent
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        Profile profile = LobbyMain.getProfileManager().getProfile(p.getUniqueId());
+        Profile profile = pm.getProfile(p.getUniqueId());
         profile.setStatus(StatusType.OFFLINE);
         p.getInventory().clear();
         e.setQuitMessage(null);

@@ -2,11 +2,14 @@ package br.pryz.lobby.utils;
  
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
  
@@ -56,6 +59,11 @@ public class PryConfig {
         getPlugin().saveResource(getName(), false);
     	}
     }
+    public Set<String> getSection(String path){
+        ConfigurationSection section = getConfig().getConfigurationSection(path);
+        if (section != null) return section.getKeys(false);
+        return new HashSet<>();
+    }
     public void reloadConfig() {
         file = new File(getPlugin().getDataFolder(),getName());
         config = YamlConfiguration.loadConfiguration(getFile());
@@ -74,6 +82,9 @@ public class PryConfig {
    
     public int getInt(String path) {
         return getConfig().getInt(path);
+    }
+    public long getLong(String path){
+        return getConfig().getLong(path);
     }
     public boolean getBoolean(String path) {
         return getConfig().getBoolean(path);

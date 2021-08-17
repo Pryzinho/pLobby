@@ -3,6 +3,7 @@ package br.pryz.lobby.utils;
 
 import br.pryz.lobby.main.LobbyMain;
 import br.pryz.lobby.utils.profile.Profile;
+import br.pryz.lobby.utils.profile.ProfileManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -37,12 +38,12 @@ public class Lobby {
     }
 
     /**
-     *
+     * @param pm - ProfileManager
      * @param p - Player
      * @param t - Target
      */
-    public static void openProfile(Player p, Player t) {
-        Profile pf = LobbyMain.getProfileManager().getProfile(t.getUniqueId());
+    public static void openProfile(ProfileManager pm, Player p, Player t) {
+        Profile pf = pm.getProfile(t.getUniqueId());
         if (p == t) {
             Inventory inv = Bukkit.createInventory(null, 9 * 5, color("&aMeu Perfil"));
             DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
