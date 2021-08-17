@@ -15,6 +15,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -41,7 +42,7 @@ public class Lobby {
      * @param t - Target
      */
     public static void openProfile(Player p, Player t) {
-        Profile pf = LobbyMain.getProfileManager().getProfile(t);
+        Profile pf = LobbyMain.getProfileManager().getProfile(t.getUniqueId());
         if (p == t) {
             Inventory inv = Bukkit.createInventory(null, 9 * 5, color("&aMeu Perfil"));
             DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
@@ -73,11 +74,10 @@ public class Lobby {
             return;
         }
             Inventory inv = Bukkit.createInventory(null, 9 * 5, color("&aMeu Perfil"));
-            DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm");
             Date first = new Date(pf.getFirstTimeOnline()), last = new Date(pf.getLastTimeOnline());
-
-            String sfirst = color("&aConta criada em &f") + df.format(first),
-                    slast = color("&cUltimo login em &f") + df.format(last),
+            String sfirst = color("&aConta criada em &f") + sdf.format(first),
+                    slast = color("&cUltimo login em &f") + sdf.format(last),
                     discord = color("&aD&bi&cs&dc&eo&fr&ad&f: ") + pf.getDiscord();
             List<String> lore = Arrays.asList(color(pf.getStatus().name()), discord, sfirst, slast);
             ItemStack item = ItemBuilder.newItem(p.getName(), Material.SKELETON_SKULL, lore);
@@ -90,9 +90,10 @@ public class Lobby {
 
     public static void openLobbys(Player p) {
         Inventory inv = Bukkit.createInventory(null, 27, color("&aLobbys"));
-        for (int i = 0; i < numberOfLobbys; i++) {
+        for (int i = 1; i < numberOfLobbys; i++) {
             ArrayList<String> lore = new ArrayList<>();
-            lore.add(color("&a") + Bukkit.getWorld("lobby" + i).getPlayers().size() + color("&a estão conectados a este lobby."));
+            String lobby = "lobby" + i;
+            lore.add(color("&a") + Bukkit.getWorld(lobby).getPlayers().size() + color("&a jogadores estão conectados a este lobby."));
             ItemStack item = ItemBuilder.newItem("&aLobby " + i, Material.EMERALD, lore);
             inv.setItem(11 + i, item);
         }

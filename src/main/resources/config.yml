@@ -1,2 +1,13 @@
 ServerPrefix: "&eSistema &f>"
-NumberOfLobbys: 5
+NumberOfLobbys: 3
+
+# StorageTypes: SQL, YML
+StorageType: YML
+
+# MySQL Configuration
+MySQL:
+  host: "127.0.0.1"
+  port: "3306"
+  username: "admin"
+  password: "password"
+  database: "plobby"

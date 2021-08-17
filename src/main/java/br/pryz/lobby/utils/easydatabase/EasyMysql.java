@@ -4,16 +4,18 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class EasyDatabaseMysql implements EasyDatabase {
+public class EasyMysql implements EasyDatabase {
 
     private String host;
+    private String port;
     private String username;
     private String password;
     private String database;
     private Connection connection;
 
-    public EasyDatabaseMysql(String host, String username, String password, String database) {
+    public EasyMysql(String host, String port, String username, String password, String database) {
         this.host = host;
+        this.port = port;
         this.username = username;
         this.password = password;
         this.database = database;
@@ -36,7 +38,7 @@ public class EasyDatabaseMysql implements EasyDatabase {
     public void openConnection() {
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection("jdbc:mysql://" + host + "/" + database + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", username, password);
+            connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", username, password);
         } catch (SQLException | ClassNotFoundException ex) {
             ex.printStackTrace();
         }

@@ -4,7 +4,6 @@ import br.pryz.lobby.main.LobbyMain;
 import br.pryz.lobby.utils.Lobby;
 import br.pryz.lobby.utils.PvP;
 import br.pryz.lobby.utils.profile.Profile;
-import br.pryz.lobby.utils.profile.ProfileManager;
 import br.pryz.lobby.utils.profile.StatusType;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -21,13 +20,11 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.List;
 import java.util.Random;
 
 public class PlayerEvent
         implements Listener {
-    private static List<Player> invanish = Lobby.getVanishedPlayers();
-    private JavaPlugin pl = LobbyMain.getInstance();
+    private final JavaPlugin pl = LobbyMain.getInstance();
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
@@ -56,7 +53,6 @@ public class PlayerEvent
     @EventHandler
     public void onDropItem(PlayerDropItemEvent e) {
         if (e.getPlayer().hasPermission("pry.lobby.bypass")) return;
-        Player p = e.getPlayer();
         e.setCancelled(true);
     }
 
@@ -83,8 +79,13 @@ public class PlayerEvent
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
-        Profile pf = LobbyMain.getProfileManager().initProfile(p);
-        pf.setStatus(StatusType.DISPONIVEL);
+
+        Profile profile = LobbyMain.getProfileManager().getProfile(p.getUniqueId());
+        if (profile == null){
+            profile = LobbyMain.getProfileManager().createProfile(p.getUniqueId());
+        }
+        profile.setStatus(StatusType.DISPONIVEL);
+
         PvP.getPlayers().forEach(p2 -> p2.hidePlayer(pl, p));
         p.setGameMode(GameMode.CREATIVE);
         if (!p.hasPermission("pry.lobby.vip")) {
@@ -98,7 +99,7 @@ public class PlayerEvent
             lobby = 1;
         }
         Lobby.teleportLobby(p, "lobby" + lobby);
-        invanish.forEach(p3 -> p3.hidePlayer(pl, p));
+        Lobby.getVanishedPlayers().forEach(p3 -> p3.hidePlayer(pl, p));
         //LobbyMain.bossbar.addPlayer(e.getPlayer());
         //LobbyMain.bossbar.setVisible(true);
     }
@@ -106,8 +107,8 @@ public class PlayerEvent
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        Profile pf = LobbyMain.getProfileManager().initProfile(p);
-        pf.setStatus(StatusType.OFFLINE);
+        Profile profile = LobbyMain.getProfileManager().getProfile(p.getUniqueId());
+        profile.setStatus(StatusType.OFFLINE);
         p.getInventory().clear();
         e.setQuitMessage(null);
     }

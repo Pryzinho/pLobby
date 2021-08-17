@@ -24,7 +24,7 @@ import java.sql.Statement;
 
 
 public class LobbyMain extends JavaPlugin {
-    private static ProfileManager pm = new ProfileManager();
+    private static ProfileManager pm;
     private final CommandSender console = Bukkit.getConsoleSender();
 
     public static boolean sendPluginMessage(Player player, String channel, String subchannel, String... data) {
@@ -68,20 +68,6 @@ public class LobbyMain extends JavaPlugin {
     }
 
     public void onEnable() {
-
-        //Loading Database...
-        Connection con = null;
-        try {
-            con = pm.getSQL().getConnection();
-            Statement stmt = con.createStatement();
-            stmt.execute("CREATE TABLE IF NOT EXISTS `plobby`.`profiles` (`name` varchar(16) NOT NULL, `email` varchar(256) DEFAULT NULL,`discord` varchar(2000) DEFAULT NULL,`firstTimeOnline` bigint(20) NOT NULL,`lastTimeOnline` bigint(20) NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-            stmt.close();
-            con.close();
-        } catch (EasyDatabaseException | SQLException e) {
-            e.printStackTrace();
-        }
-        pm.loadProfiles();
-
         //Loading Events...
         getServer().getPluginManager().registerEvents(new PlayerEvent(), this);
         getServer().getPluginManager().registerEvents(new ItemEvent(), this);
@@ -89,7 +75,7 @@ public class LobbyMain extends JavaPlugin {
         if (Lobby.noExists()) {
             Lobby.getConfig().reloadConfig();
             Lobby.getLocationsYml().reloadConfig();
-            for (int i = 1; i < Lobby.getNumberOfLobbys(); i++) {
+            for (int i = 1; i <= Lobby.getNumberOfLobbys(); i++) {
                 WorldCreator wc = new WorldCreator("lobby" + i);
                 wc.type(WorldType.FLAT);
                 wc.generateStructures(false);
@@ -98,11 +84,14 @@ public class LobbyMain extends JavaPlugin {
                         .setLocation("lobby" + i, Bukkit.getWorld("lobby" + 1).getSpawnLocation());
             }
         } else {
-            for (int i = 1; i < Lobby.getNumberOfLobbys(); i++) {
+            for (int i = 1; i <= Lobby.getNumberOfLobbys(); i++) {
                 Lobby.getLocationsYml()
                         .setLocation("lobby" + i, Bukkit.getWorld("lobby" + i).getSpawnLocation());
             }
         }
+
+        //Loading Managers...
+        pm = new ProfileManager(this, ProfileManager.StorageType.valueOf(Lobby.getConfig().getString("StorageType")));
 
         //Loading commands...
         getCommand("sair").setExecutor(new Quit());
@@ -117,10 +106,10 @@ public class LobbyMain extends JavaPlugin {
 
     public void onDisable() {
         HandlerList.unregisterAll();
-        this.console.sendMessage("--------------------");
-        this.console.sendMessage(color(" &ePryz Lobby "));
-        this.console.sendMessage(color(" &cPugin Desabilitado "));
-        this.console.sendMessage("--------------------");
+        console.sendMessage("--------------------");
+        console.sendMessage(color(" &ePryz Lobby "));
+        console.sendMessage(color(" &cPugin Desabilitado "));
+        console.sendMessage("--------------------");
     }
 
     private String color(String txt) {

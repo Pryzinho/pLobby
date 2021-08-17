@@ -1,74 +1,83 @@
 package br.pryz.lobby.utils.profile;
 
-import br.pryz.lobby.utils.easydatabase.EasyDatabaseException;
-import br.pryz.lobby.utils.easydatabase.EasyDatabaseMysql;
+import br.pryz.lobby.utils.PryConfig;
+import br.pryz.lobby.utils.easydatabase.EasyMysql;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 
 public class ProfileManager {
-    private List<Profile> profiles = new ArrayList<>();
-    private final EasyDatabaseMysql sql = new EasyDatabaseMysql("127.0.0.1", "root", "", "plobby");
+    private JavaPlugin plugin;
+    private PryConfig ymlprofiles;
+    private EasyMysql mysqlprofiles;
+    private Map<UUID, Profile> profiles = new HashMap<UUID, Profile>();
+    private StorageType storageType;
 
 
-    public Profile initProfile(Player p) {
-        try {
-            Connection con = sql.getConnection();
-			String query = "SELECT * FROM `profiles` WHERE name='" + p.getName() +"'";
-            PreparedStatement ps = con.prepareStatement(query);
-            ps.executeQuery();
-            ResultSet rs = ps.getResultSet();
-            if (!rs.wasNull()) {
-                Profile pf = new Profile(p,
-                        rs.getString(2),
-                        rs.getString(3),
-                        rs.getLong(4),
-                        rs.getLong(5));
-                if (profiles.contains(p))profiles.remove(p);
-                    profiles.add(pf);
-                ps.close();
-				con.close();
-                return pf;
-            } else {
-                Profile pf = new Profile(p,
-                        "Ugh, e-mail?",
-                        "MEU, LINKA ISSO LOGO",
-                        p.getFirstPlayed(),
-                        System.currentTimeMillis());
-                profiles.add(pf);
-                String values = "(" + p.getName() + ", 'Ugh, e-mail?', 'Meu, linka isso logo!', " + p.getFirstPlayed() + ", " + System.currentTimeMillis() +");";
-                PreparedStatement ps2 = con.prepareStatement("INSERT INTO `profiles` (`name`, `email`, `discord`, `firstTimeOnline`, `lastTimeOnline`) VALUES" + values);
-                ps2.executeQuery();
-				ps2.close();
-				con.close();
-                return pf;
+    public ProfileManager(JavaPlugin plugin, StorageType storageType) {
+        this.plugin = plugin;
+        this.storageType = storageType;
+        switch (storageType) {
+            case SQL:
 
-            }
-        } catch (EasyDatabaseException | SQLException e) {
-            e.printStackTrace();
-            return null;
+                break;
+            case YML:
+                ymlprofiles = new PryConfig(plugin, "profiles.yml");
+                ymlprofiles.saveDefaultConfig();
+                break;
+            default:
+
+                break;
         }
     }
-	
-    public Profile getProfile(Player p) {
-		for (int i = 0; i < profiles.size(); i++){
-			Profile pf = profiles.get(i);
-			if (pf.getPlayer().getName() == p.getName()){
-				return pf;
-			}
-		}
-		return null;
-	}
-	
-    public EasyDatabaseMysql getSQL(){
-        return sql;
+
+    public Profile createProfile(UUID uuid) {
+        Player p = Bukkit.getPlayer(uuid);
+        Profile profile = new Profile(uuid,
+                "Ugh, e-mail?",
+                "MEU, LINKA ISSO LOGO",
+                p.getFirstPlayed(),
+                System.currentTimeMillis());
+        profiles.put(uuid, profile);
+        return profile;
     }
 
+    public Profile getProfile(UUID uuid) {
+        return profiles.get(uuid);
+    }
 
+    public void loadProfiles() {
+
+    }
+
+    public void saveProfiles() {
+        switch (storageType) {
+            case SQL:
+
+                break;
+            case YML:
+               for (UUID uuid: profiles.keySet()){
+                   ymlprofiles.set(String.valueOf(uuid) + ".email", profiles.get(uuid).getEmail());
+                   ymlprofiles.set(String.valueOf(uuid) + ".discord", profiles.get(uuid).getDiscord());
+                   ymlprofiles.set(String.valueOf(uuid) + ".firstPlayed", profiles.get(uuid).getFirstTimeOnline());
+                   ymlprofiles.set(String.valueOf(uuid) + ".lastPlayed", profiles.get(uuid).getLastTimeOnline());
+                   ymlprofiles.saveConfig();
+               }
+                break;
+        }
+    }
+
+    public Map<UUID, Profile> getProfiles() {
+        return profiles;
+    }
+
+    public enum StorageType {
+        SQL,
+        YML
+    }
 }
