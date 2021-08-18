@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public class ProfileManager {
     private JavaPlugin plugin;
-    private PryConfig ymlprofiles = new PryConfig(LobbyMain.getInstance(), "profiles.yml");
+    private PryConfig ymlprofiles;
     private EasyMysql mysqlprofiles;
     private Map<UUID, Profile> profiles = new HashMap<UUID, Profile>();
     private StorageType storageType;
@@ -28,6 +28,7 @@ public class ProfileManager {
 
                 break;
             case YML:
+			ymlprofiles = new PryConfig(plugin, "profiles.yml");
                 ymlprofiles.saveDefaultConfig();
                 break;
 
