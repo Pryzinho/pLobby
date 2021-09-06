@@ -1,6 +1,5 @@
 package br.pryz.lobby.utils.profile;
 
-import br.pryz.lobby.main.LobbyMain;
 import br.pryz.lobby.utils.PryConfig;
 import br.pryz.lobby.utils.easydatabase.EasyMysql;
 import org.bukkit.Bukkit;
@@ -28,8 +27,13 @@ public class ProfileManager {
 
                 break;
             case YML:
-			ymlprofiles = new PryConfig(plugin, "profiles.yml");
+                ymlprofiles = new PryConfig(plugin, "profiles.yml");
                 ymlprofiles.saveDefaultConfig();
+                break;
+            default:
+                ymlprofiles = new PryConfig(plugin, "profiles.yml");
+                ymlprofiles.saveDefaultConfig();
+                this.storageType = StorageType.YML;
                 break;
 
         }

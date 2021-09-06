@@ -1,7 +1,7 @@
 package br.pryz.lobby.events;
 
 import br.pryz.lobby.main.LobbyMain;
-import br.pryz.lobby.utils.ItemBuilder;
+import br.pryz.lobby.utils.PryItem;
 import br.pryz.lobby.utils.Lobby;
 import br.pryz.lobby.utils.PvP;
 import br.pryz.lobby.utils.profile.ProfileManager;
@@ -26,7 +26,7 @@ public class ItemEvent
     private JavaPlugin pl;
     private ProfileManager pm;
 
-    public ItemEvent(LobbyMain plugin){
+    public ItemEvent(LobbyMain plugin) {
         pl = plugin;
         pm = plugin.getProfileManager();
     }
@@ -71,6 +71,7 @@ public class ItemEvent
         ItemStack item = e.getCurrentItem();
         Lobby.teleportLobby(p, item.getItemMeta().getDisplayName());
         p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 50.0f, 50.0f);
+        e.setCancelled(true);
     }
 
     @EventHandler
@@ -96,12 +97,15 @@ public class ItemEvent
         try {
             Lobby.teleportServer(p, e.getCurrentItem().getItemMeta().getDisplayName());
             p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 50.0f, 50.0f);
+            e.setCancelled(true);
             return;
         } catch (Exception ex) {
             p.sendMessage(Lobby.getServerPrefix() + color("&cHouve um erro na conexão, contate um membro da equipe."));
             p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 50.0f, 50.0f);
+            e.setCancelled(true);
             return;
         }
+
     }
 
     @EventHandler
@@ -116,7 +120,7 @@ public class ItemEvent
         if (!e.getItem().getItemMeta().getDisplayName().equals(color("&aVisibilidade"))) return;
         if (!invanish.contains(p)) {
             invanish.add(p);
-            ItemStack fwt = ItemBuilder.newItem("&aVisibilidade", Material.FIRE_CHARGE);
+            ItemStack fwt = PryItem.create("&aVisibilidade", Material.FIRE_CHARGE);
             p.getWorld().getPlayers().stream().filter(p2 -> !p2.hasPermission("pry.lobby.staff")).forEach(p3 -> {
                 if (p3.equals(p)) return;
                 p.hidePlayer(pl, p3);
@@ -140,7 +144,7 @@ public class ItemEvent
         }
         Player p = e.getPlayer();
         if (e.getAction() != Action.RIGHT_CLICK_BLOCK && e.getAction() != Action.RIGHT_CLICK_AIR) return;
-        if (!e.getItem().getItemMeta().getDisplayName().equals(color("&aIr Batalhar"))) return;
+        if (!e.getItem().getItemMeta().getDisplayName().equalsIgnoreCase(color("&aIr Batalhar"))) return;
         e.setCancelled(true);
         if (invanish.contains(p)) {
             invanish.remove(p);

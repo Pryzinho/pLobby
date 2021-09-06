@@ -38,7 +38,7 @@ public class PlayerEvent
         if (p.hasPermission("pry.lobby.staff")) {
             if (e.getMessage().startsWith("/")) return;
             if (e.getMessage().startsWith("!")) {
-                Bukkit.getOnlinePlayers().forEach(p2 -> p2.sendMessage(color("&bEquipe&f >" + p.getName() + ": " + e.getMessage())));
+                Bukkit.getOnlinePlayers().forEach(p2 -> p2.sendMessage(color("&bEquipe&f > " + p.getName() + ": " + e.getMessage())));
             } else {
                 p.getWorld().getPlayers().forEach(p2 -> p2.sendMessage(color("&bEquipe&f > " + p.getName() + ": " + e.getMessage())));
             }
@@ -168,6 +168,7 @@ public class PlayerEvent
         Player p = e.getPlayer();
         if (PvP.isInPvp(p)){
             PvP.removePlayer(p);
+            Lobby.giveItens(p);
         } else {
             Lobby.giveItens(p);
         }

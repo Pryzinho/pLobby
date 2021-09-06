@@ -9,8 +9,8 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class ItemBuilder {
-    public static ItemStack newItem(String name, Material material) {
+public class PryItem {
+    public static ItemStack create(String name, Material material) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(color(name));
@@ -18,7 +18,7 @@ public class ItemBuilder {
         return item;
     }
 
-    public static ItemStack newItem(String name, Material material, int quantia) {
+    public static ItemStack create(String name, Material material, int quantia) {
         ItemStack item = new ItemStack(material, quantia);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(color(name));
@@ -26,7 +26,7 @@ public class ItemBuilder {
         return item;
     }
 
-    public static ItemStack newItem(String name, Material material, List<String> lore) {
+    public static ItemStack create(String name, Material material, List<String> lore) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(color(name));

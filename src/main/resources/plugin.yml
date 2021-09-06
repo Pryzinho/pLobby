@@ -1,10 +1,10 @@
-name: Lobby
+name: pLobby
 version: ${project.version}
 main: br.pryz.lobby.main.LobbyMain
 api-version: 1.17
 authors: [ PryzDev ]
-description: Plugin de lobby
+description: Plugin de gerenciamento de lobby
 commands:
   sair:
-    description: Lhe tira do modo pvp
+    description: Remove o jogador do modo pvp.
     aliases: [quit]

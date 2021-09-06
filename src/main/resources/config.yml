@@ -1,13 +1,23 @@
-ServerPrefix: "&eSistema &f>"
+ServerPrefix: '&eSistema &f>'
 NumberOfLobbys: 3
+
+# Servers Configuration.
+# Format: real_name: display_name
+# Examples: rankup: '&dEpic &bRank&2Up'; better_server_in_the_world: '&aTower Defense Lol'; 2xn2jenjw72_mj2ud2: '&bSky&8Block'
+Servers:
+  server1: '&aServer 1'
+  server2: '&aServer &b2'
+  server3: '&aServer &c3'
+  server4: '&aServer &d4'
+  server5: '&aServer &e5'
 
 # StorageTypes: SQL, YML
 StorageType: YML
 
 # MySQL Configuration
 MySQL:
-  host: "127.0.0.1"
-  port: "3306"
-  username: "admin"
-  password: "password"
-  database: "plobby"
+  host: '127.0.0.1'
+  port: '3306'
+  username: 'admin'
+  password: 'password'
+  database: 'plobby'

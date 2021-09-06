@@ -1,16 +1,15 @@
 package br.pryz.lobby.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import br.pryz.lobby.main.LobbyMain;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PvP {
     private static JavaPlugin pl = LobbyMain.getInstance();
@@ -31,7 +30,7 @@ public class PvP {
         PvP.getPlayers().add(p);
         p.getWorld().getPlayers().forEach(player2 -> {
             if (PvP.isInPvp(player2)) return;
-            p.hidePlayer((Plugin) pl, player2);
+            p.hidePlayer(pl, player2);
         });
         p.sendMessage("§aVocê entrou na batalha caso queira sair digite: §c/sair");
     }
@@ -41,19 +40,19 @@ public class PvP {
         p.setFlying(false);
         p.setAllowFlight(false);
         PvP.getPlayers().remove(p);
-        p.getWorld().getPlayers().forEach(player2 -> p.showPlayer((Plugin) pl, player2));
-        Lobby.giveItens((Player) p);
+        p.getWorld().getPlayers().forEach(player2 -> p.showPlayer(pl, player2));
+        Lobby.giveItens(p);
     }
 
     public static void giveItens(Player p) {
         PlayerInventory inv = p.getInventory();
         inv.clear();
-        ItemStack espada = ItemBuilder.newItem((String) "Espada", (Material) Material.IRON_SWORD);
-        ItemStack comida = ItemBuilder.newItem((String) "Maçã Pryzat", (Material) Material.GOLDEN_APPLE, (int) 10);
-        ItemStack capacete = ItemBuilder.newItem((String) "Armadura", (Material) Material.IRON_HELMET);
-        ItemStack peitoral = ItemBuilder.newItem((String) "Armadura", (Material) Material.IRON_CHESTPLATE);
-        ItemStack calcas = ItemBuilder.newItem((String) "Armadura", (Material) Material.IRON_LEGGINGS);
-        ItemStack bota = ItemBuilder.newItem((String) "Armadura", (Material) Material.IRON_BOOTS);
+        ItemStack espada = PryItem.create("Espada", Material.IRON_SWORD);
+        ItemStack comida = PryItem.create("Maçã Dourada", Material.GOLDEN_APPLE, 5);
+        ItemStack capacete = PryItem.create("Armadura", Material.IRON_HELMET);
+        ItemStack peitoral = PryItem.create("Armadura", Material.IRON_CHESTPLATE);
+        ItemStack calcas = PryItem.create("Armadura", Material.IRON_LEGGINGS);
+        ItemStack bota = PryItem.create("Armadura", Material.IRON_BOOTS);
         inv.setHelmet(capacete);
         inv.setChestplate(peitoral);
         inv.setLeggings(calcas);

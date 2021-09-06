@@ -64,6 +64,13 @@ public class PryConfig {
         if (section != null) return section.getKeys(false);
         return new HashSet<>();
     }
+    public ConfigurationSection getConfigurationSection(String path){
+        return getConfig().getConfigurationSection(path);
+    }
+
+    public ConfigurationSection createSection(String path){
+        return getConfig().createSection(path);
+    }
     public void reloadConfig() {
         file = new File(getPlugin().getDataFolder(),getName());
         config = YamlConfiguration.loadConfiguration(getFile());
