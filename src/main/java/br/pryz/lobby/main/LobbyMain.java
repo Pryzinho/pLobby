@@ -22,39 +22,6 @@ public class LobbyMain extends JavaPlugin {
     private ProfileManager pm;
     private final ConsoleCommandSender ccs = Bukkit.getConsoleSender();
 
-    public static boolean sendPluginMessage(JavaPlugin pl, Player player, String channel, String subchannel, String... data) {
-        try {
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF(subchannel);
-            String[] stringArray = data;
-            int n = data.length;
-            int n2 = 0;
-            while (n2 < n) {
-                String dataToSend = stringArray[n2];
-                out.writeUTF(dataToSend == null ? "" : dataToSend);
-                ++n2;
-            }
-            if (player != null) {
-                player.sendPluginMessage(pl, channel, out.toByteArray());
-                return true;
-            }
-            player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
-            if (player == null) return false;
-            player.sendPluginMessage(pl, channel, out.toByteArray());
-            return true;
-        } catch (Exception exception) {
-            return false;
-        }
-    }
-
-    public static JavaPlugin getInstance() {
-        return getPlugin(LobbyMain.class);
-    }
-
-    public ProfileManager getProfileManager() {
-        return pm;
-    }
-
     public void onEnable() {
         Logger.log(ccs, "&f[&dp&aLobby&f]&a Iniciando configuração...");
         pm = new ProfileManager(this, StorageType.YML);
@@ -100,7 +67,37 @@ public class LobbyMain extends JavaPlugin {
         pm.saveProfiles();
         Logger.log(ccs, "&f[&dp&aLobby&f]&c Plugin desligado com sucesso!");
     }
+    public static boolean sendPluginMessage(JavaPlugin pl, Player player, String channel, String subchannel, String... data) {
+        try {
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF(subchannel);
+            String[] stringArray = data;
+            int n = data.length;
+            int n2 = 0;
+            while (n2 < n) {
+                String dataToSend = stringArray[n2];
+                out.writeUTF(dataToSend == null ? "" : dataToSend);
+                ++n2;
+            }
+            if (player != null) {
+                player.sendPluginMessage(pl, channel, out.toByteArray());
+                return true;
+            }
+            player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
+            if (player == null) return false;
+            player.sendPluginMessage(pl, channel, out.toByteArray());
+            return true;
+        } catch (Exception exception) {
+            return false;
+        }
+    }
+    public static JavaPlugin getInstance() {
+        return getPlugin(LobbyMain.class);
+    }
 
+    public ProfileManager getProfileManager() {
+        return pm;
+    }
 
 }
 

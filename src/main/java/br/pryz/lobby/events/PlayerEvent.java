@@ -6,6 +6,7 @@ import br.pryz.lobby.utils.PvP;
 import br.pryz.lobby.utils.profile.Profile;
 import br.pryz.lobby.utils.profile.ProfileManager;
 import br.pryz.lobby.utils.profile.StatusType;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -33,18 +34,10 @@ public class PlayerEvent
     }
 
     @EventHandler
-    public void onChat(AsyncPlayerChatEvent e) {
+    public void onChat(AsyncChatEvent e) {
         Player p = e.getPlayer();
         if (p.hasPermission("pry.lobby.staff")) {
-            if (e.getMessage().startsWith("/")) return;
-            if (e.getMessage().startsWith("!")) {
-                Bukkit.getOnlinePlayers().forEach(p2 -> p2.sendMessage(color("&bEquipe&f > " + p.getName() + ": " + e.getMessage())));
-            } else {
-                p.getWorld().getPlayers().forEach(p2 -> p2.sendMessage(color("&bEquipe&f > " + p.getName() + ": " + e.getMessage())));
-            }
-            e.setCancelled(true);
-        } else {
-            if (e.getMessage().startsWith("/")) return;
+                p.getWorld().getPlayers().forEach(p2 -> p2.sendMessage(color("&bEquipe&f > " + p.getName() + ": " + e.message())));
             e.setCancelled(true);
         }
     }
@@ -76,9 +69,9 @@ public class PlayerEvent
     public void onClickInventory(InventoryClickEvent e) {
         if (e.getWhoClicked().hasPermission("pry.lobby.bypass")) return;
         if (!(e.getWhoClicked() instanceof Player)) return;
-        if (e.getView().getTitle().equals(color("&ePerfil"))) return;
-        if (e.getView().getTitle().equals(color("&aLobbys"))) return;
-        if (e.getView().getTitle().equals(color("&aServidores"))) return;
+        if (e.getView().title().equals(color("&ePerfil"))) return;
+        if (e.getView().title().equals(color("&aLobbys"))) return;
+        if (e.getView().title().equals(color("&aServidores"))) return;
         e.setResult(Event.Result.DENY);
     }
 
@@ -99,7 +92,7 @@ public class PlayerEvent
             p.setFlying(false);
         }
         Lobby.giveItens(p);
-        e.setJoinMessage(null);
+        e.joinMessage(null);
         int lobby = new Random().nextInt(Lobby.getNumberOfLobbys());
         if (lobby == 0) {
             lobby = 1;

@@ -1,8 +1,8 @@
 name: pLobby
 version: ${project.version}
 main: br.pryz.lobby.main.LobbyMain
-api-version: 1.17
-authors: [ PryzDev ]
+api-version: 1.19
+author: PryzDev
 description: Plugin de gerenciamento de lobby
 commands:
   sair:
